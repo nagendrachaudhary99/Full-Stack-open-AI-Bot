@@ -6,55 +6,39 @@ function App() {
   const [chats, setChats] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
 
-  const scrollToBottom = () => {
-    window.scrollTo(0, document.body.scrollHeight);
-  };
   const chat = async (e, message) => {
     e.preventDefault();
 
     if (!message) return;
     setIsTyping(true);
-    scrollToBottom(0, 1e10);
+    scrollTo(0, 1e10);
 
-   //let msgs = chats;
-   // msgs.push({ role: "user", content: message });
-   // setChats(msgs);
+    let msgs = chats;
+    msgs.push({ role: "user", content: message });
+    setChats(msgs);
 
-   // setMessage("");
+    setMessage("");
 
-   setChats((prevChats) => {
-    const updatedChats = [...prevChats, { role: "user", content: message }];
-    setMessage(""); // Clearthe input field
-
-
-
-    fetch("http://localhost:3000/", {
+    fetch("http://localhost:3002/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        chats: updatedChats,
+        chats,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
-        setChats((prevChats) => [
-          ...prevChats,
-          { role: "assistant", content: data.output }
-        ]);
+        msgs.push(data.output);
+        setChats(msgs);
         setIsTyping(false);
         scrollTo(0, 1e10);
       })
       .catch((error) => {
         console.log(error);
-        setIsTyping(false);
       });
-
-    return updatedChats;
-  });
-};
-
+  };
 
   return (
     <main>
